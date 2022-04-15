@@ -8,6 +8,7 @@
 #define BUFFSIZE 4096
 
 ssize_t total=0;
+void child(int );
 void writefile(int sockfd, FILE *fp){
     ssize_t n;
     char buff[MAX_LINE] = {0};
@@ -67,7 +68,14 @@ int main(int argc , char *argv[])
 	while (1) {	
 		//accept connection from an incoming client
 		client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-		if (client_sock < 0)
+		if(!fork()){
+			child(client_sock);
+		}
+	}
+	return 0;
+}
+void child(int client_sock){
+	if (client_sock < 0)
 		{
 			perror("accept failed");
 			return 1;
@@ -89,27 +97,6 @@ int main(int argc , char *argv[])
 		}
 		writefile(client_sock, fp);
 		fclose(fp);
-		//write_file(new_sock);
-		/*
-		//Receive a message from client
-		while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
-		{
-			//Send the message back to client
-			write(client_sock , client_message , strlen(client_message));
-		}
-	
-		if(read_size == 0)
-		{
-			puts("Client disconnected");
-			fflush(stdout);
-		}
-		else if(read_size == -1)
-		{
-			perror("recv failed");
-		}
-		*/
-	}
-	close(client_sock);	
-	return 0;
-}
 
+	
+}

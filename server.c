@@ -1,18 +1,40 @@
-/*
-	C socket server example
-*/
-
 #include <stdio.h>
 #include <string.h>	//strlen
 #include <sys/socket.h>
 #include <arpa/inet.h>	//inet_addr
 #include <unistd.h>	//write
+#include <stdlib.h>
+#define MAX_LINE 4096
+#define BUFFSIZE 4096
+
+ssize_t total=0;
+void writefile(int sockfd, FILE *fp){
+    ssize_t n;
+    char buff[MAX_LINE] = {0};
+    while ((n = recv(sockfd, buff, MAX_LINE, 0)) > 0) 
+    {
+	    total+=n;
+        if (n == -1)
+        {
+            perror("Receive File Error");
+            exit(1);
+        }
+       printf("%s\n", buff); 
+        if (fwrite(buff, sizeof(char), n, fp) != n)
+        {
+            perror("Write File Error");
+            exit(1);
+        }
+        memset(buff, 0, MAX_LINE);
+    }
+}
 
 int main(int argc , char *argv[])
 {
 	int socket_desc , client_sock , c , read_size;
 	struct sockaddr_in server , client;
 	char client_message[2000];
+	char *message;
 	
 	//Create socket
 	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
@@ -42,32 +64,52 @@ int main(int argc , char *argv[])
 	//Accept and incoming connection
 	puts("Waiting for incoming connections...");
 	c = sizeof(struct sockaddr_in);
+	while (1) {	
+		//accept connection from an incoming client
+		client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
+		if (client_sock < 0)
+		{
+			perror("accept failed");
+			return 1;
+		}
+		puts("Connection accepted");
+		
+		char filename[BUFFSIZE] = {0}; 
+		if (recv(client_sock, filename, BUFFSIZE, 0) == -1) {
+			perror("Can't receive filename");
+			exit(1);
+		}	
+
+		printf("%s", filename);
+		
+		FILE *fp = fopen(filename, "wb");
+		if (fp == NULL) {
+			perror("Can't open file");
+			exit(1);
+		}
+		writefile(client_sock, fp);
+		fclose(fp);
+		//write_file(new_sock);
+		/*
+		//Receive a message from client
+		while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
+		{
+			//Send the message back to client
+			write(client_sock , client_message , strlen(client_message));
+		}
 	
-	//accept connection from an incoming client
-	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-	if (client_sock < 0)
-	{
-		perror("accept failed");
-		return 1;
+		if(read_size == 0)
+		{
+			puts("Client disconnected");
+			fflush(stdout);
+		}
+		else if(read_size == -1)
+		{
+			perror("recv failed");
+		}
+		*/
 	}
-	puts("Connection accepted");
-	
-	//Receive a message from client
-	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
-	{
-		//Send the message back to client
-		write(client_sock , client_message , strlen(client_message));
-	}
-	
-	if(read_size == 0)
-	{
-		puts("Client disconnected");
-		fflush(stdout);
-	}
-	else if(read_size == -1)
-	{
-		perror("recv failed");
-	}
-	
+	close(client_sock);	
 	return 0;
 }
+

@@ -100,7 +100,7 @@ void sendfile(FILE *fp, int sockfd){
 void child(int client_sock) {
 	char filename[BUFFSIZE] = {0};
        char pattern[BUFFSIZE] = {0};
-		if (recv(client_sock, pattern, BUFFSIZE, 0) == -1){
+		if (recv(client_sock, pattern, BUFFSIZE, 0) == -1) {
 			perror("Can't receive pattern");
 			exit(1);
 		}
@@ -146,6 +146,5 @@ void child(int client_sock) {
 		sendfile(opFile, client_sock);
 		fclose(opFile);
 		pclose(cmd);
-		//
 }
 

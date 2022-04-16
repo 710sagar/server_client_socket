@@ -24,7 +24,7 @@ void writefile(int sockfd){
             perror("Receive File Error");
             exit(1);
         }
-       printf("%s\n", buff);
+       //printf("%s\n", buff);
         if (fwrite(buff, sizeof(char), n, fp) != n){
             perror("Write File Error");
             exit(1);

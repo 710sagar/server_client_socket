@@ -1,7 +1,7 @@
-#include <stdio.h>	//printf
-#include <string.h>	//strlen
-#include <sys/socket.h>	//socket
-#include <arpa/inet.h>	//inet_addr
+#include <stdio.h>	
+#include <string.h>	
+#include <sys/socket.h>	
+#include <arpa/inet.h>
 #include <unistd.h>
 #include<stdlib.h>
 #define BUFFSIZE 4096
@@ -94,7 +94,6 @@ int main(int argc , char *argv[]){
 			exit(1);
 	}
 	sendfile(fp, sock);
-	printf("File sent successfully\n");
 
 	// Receive data from server
 	writefile(sock);
@@ -102,7 +101,6 @@ int main(int argc , char *argv[]){
 	// run grep on client
 	char buf[32];
 		sprintf(buf,"grep -w %s %s",argv[1], argv[2]);
-		printf("buff: %s\n", buf);
 		FILE *cmd=popen(buf, "r");
 		char result[BUFFSIZE]={0x0};
 		remove("op_client.txt");
@@ -116,7 +114,6 @@ int main(int argc , char *argv[]){
     			char del[] = " ";
 			char *pa = argv[1];
 			char *pp = strtok(result, del);
-			printf("%s: ",argv[2]);
 			while(pp != NULL) {
 				if (*pa == *pp){
 					printf(RED " %s" RESET, pp);
@@ -126,7 +123,6 @@ int main(int argc , char *argv[]){
 			}
 			fwrite(result, sizeof(char), strlen(result), opFile);
 		}
-		//printf("it is here in client\n");
 		fclose(opFile);
 		opFile=fopen("op_server.txt", "r");
 		char *pat=argv[1];
@@ -136,17 +132,12 @@ int main(int argc , char *argv[]){
 			printf("%s: ", argv[3]);
 			while(ptr != NULL){
 				if (*ptr == *pat) {
-					//textcolor(4);
-					//printf(“\033[0;31m”);
 					printf(RED " %s" RESET, ptr);
-					//textcolor(0);
-					//printf(“\033[0m”);
 				}
 				else
 					printf(" %s", ptr);
 				ptr = strtok(NULL, delim);
 			}
-			//printf("%s: %s", argv[3], result);
 		}
 		fclose(opFile);
 

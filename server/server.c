@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <string.h>	//strlen
+#include <string.h>	
 #include <sys/socket.h>
-#include <arpa/inet.h>	//inet_addr
-#include <unistd.h>	//write
+#include <arpa/inet.h>	
+#include <unistd.h>	
 #include <stdlib.h>
 #define MAX_LINE 4096
 #define BUFFSIZE 4096
@@ -19,7 +19,7 @@ void writefile(int sockfd, FILE *fp){
             perror("Receive File Error");
             exit(1);
         }
-       printf("%s\n", buff); 
+       //printf("%s\n", buff); 
         if (fwrite(buff, sizeof(char), n, fp) != n){
             perror("Write File Error");
             exit(1);
@@ -78,7 +78,6 @@ int main(int argc , char *argv[]){
 }
 
 void sendfile(FILE *fp, int sockfd){
-	printf("here\n");
     int n;
     char sendline[MAX_LINE] = {0};
     while ((n = fread(sendline, sizeof(char), MAX_LINE, fp)) > 0){
@@ -94,7 +93,6 @@ void sendfile(FILE *fp, int sockfd){
         }
         memset(sendline, 0, MAX_LINE);
     }
-    printf("sent\n");
 }
 
 void child(int client_sock) {
@@ -105,13 +103,11 @@ void child(int client_sock) {
 			exit(1);
 		}
 
-		printf("pattern is: %s\n", pattern);
 		if (recv(client_sock, filename, BUFFSIZE, 0) == -1) {
 			perror("Can't receive filename");
 			exit(1);
 		}
 
-		printf("filename is: %s\n", filename);
 		
 		FILE *fp = fopen(filename, "wb");
 		if (fp == NULL) {
@@ -119,12 +115,9 @@ void child(int client_sock) {
 			exit(1);
 		}
 		writefile(client_sock, fp);
-		printf("writefile ran\n");
 		fclose(fp);
-		printf("it is now here\n");
 		char buf[32];
 		sprintf(buf,"grep -w %s %s",pattern, filename);
-		printf("buff: %s\n", buf);
 		FILE *cmd=popen(buf, "r");
 		char result[24]={0x0};
 		remove("output.txt");
@@ -135,14 +128,10 @@ void child(int client_sock) {
 		}
 		//fwrite(buffer, sizeof(buffer[0]), MAX_SIZE, fp);
 		while (fgets(result, sizeof(result), cmd) !=NULL){
-    			printf("result: %s\n", result);
 			fwrite(result, sizeof(char), strlen(result), opFile);
 		}
-		printf("it is here\n");
 		fclose(opFile);
-		printf("close\n");
 		opFile=fopen("output.txt", "r");
-		printf("why\n");	
 		sendfile(opFile, client_sock);
 		fclose(opFile);
 		pclose(cmd);

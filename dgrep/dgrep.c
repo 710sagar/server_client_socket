@@ -104,7 +104,7 @@ int main(int argc , char *argv[]){
 		sprintf(buf,"grep -w %s %s",argv[1], argv[2]);
 		printf("buff: %s\n", buf);
 		FILE *cmd=popen(buf, "r");
-		char result[24]={0x0};
+		char result[BUFFSIZE]={0x0};
 		remove("op_client.txt");
 		FILE *opFile=fopen("op_client.txt", "a");
 		if (opFile == NULL) {
@@ -124,7 +124,6 @@ int main(int argc , char *argv[]){
 					printf(" %s", pp);
 				pp = strtok(NULL, del);
 			}
-			//printf("%s: %s",argv[2], result);
 			fwrite(result, sizeof(char), strlen(result), opFile);
 		}
 		//printf("it is here in client\n");

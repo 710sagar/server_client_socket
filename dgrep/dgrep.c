@@ -114,6 +114,7 @@ int main(int argc , char *argv[]){
     			char del[] = " ";
 			char *pa = argv[1];
 			char *pp = strtok(result, del);
+			printf("%s: ",argv[2]);
 			while(pp != NULL) {
 				if (*pa == *pp){
 					printf(RED " %s" RESET, pp);
@@ -125,7 +126,7 @@ int main(int argc , char *argv[]){
 		}
 		fclose(opFile);
 		opFile=fopen("op_server.txt", "r");
-		printf("%s: ",argv[2]);
+
 		char *pat=argv[1];
 		while(fgets(result, sizeof(result), opFile)!=NULL) {
 			char delim[] = " ";

@@ -125,6 +125,7 @@ int main(int argc , char *argv[]){
 		}
 		fclose(opFile);
 		opFile=fopen("op_server.txt", "r");
+		printf("%s: ",argv[2]);
 		char *pat=argv[1];
 		while(fgets(result, sizeof(result), opFile)!=NULL) {
 			char delim[] = " ";

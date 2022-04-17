@@ -128,6 +128,9 @@ int main(int argc , char *argv[]){
 		opFile=fopen("serverOutput.txt", "r");
 
 		char *pat=argv[1];
+		if(fgets(result, sizeof(result), opFile)==NULL){
+			printf("Pattern Not Found");
+		}
 		while(fgets(result, sizeof(result), opFile)!=NULL) {
 			char delim[] = " ";
 			char *ptr = strtok(result, delim);

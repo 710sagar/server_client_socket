@@ -129,7 +129,7 @@ int main(int argc , char *argv[]){
 
 		char *pat=argv[1];
 		if(fgets(result, sizeof(result), opFile)==NULL){
-			printf("Pattern Not Found");
+			printf("Pattern Not Found \n");
 		}
 		while(fgets(result, sizeof(result), opFile)!=NULL) {
 			char delim[] = " ";

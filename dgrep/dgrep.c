@@ -109,41 +109,48 @@ int main(int argc , char *argv[]){
 			printf("Error: Command not executed");
 			return;
 		}
-		//fwrite(buffer, sizeof(buffer[0]), MAX_SIZE, fp);
-		while (fgets(result, sizeof(result), cmd) !=NULL){
-    			char del[] = " ";
-			char *pa = argv[1];
-			char *pp = strtok(result, del);
-			printf("%s: ",argv[2]);
-			while(pp != NULL) {
-				if (*pa == *pp){
-					printf(RED " %s" RESET, pp);
-				} else
-					printf(" %s", pp);
-				pp = strtok(NULL, del);
+		if(fgets(result, sizeof(result), opFile)==NULL){
+			printf("Pattern not found in %s\n",argv[2]);
+		}
+		else{
+			while (fgets(result, sizeof(result), cmd) !=NULL){
+					char del[] = " ";
+				char *pa = argv[1];
+				char *pp = strtok(result, del);
+				printf("%s: ",argv[2]);
+				while(pp != NULL) {
+					if (*pa == *pp){
+						printf(RED " %s" RESET, pp);
+					} else
+						printf(" %s", pp);
+					pp = strtok(NULL, del);
+				}
+				fwrite(result, sizeof(char), strlen(result), opFile);
 			}
-			fwrite(result, sizeof(char), strlen(result), opFile);
 		}
 		fclose(opFile);
 		opFile=fopen("serverOutput.txt", "r");
 
 		char *pat=argv[1];
 		if(fgets(result, sizeof(result), opFile)==NULL){
-			printf("Pattern Not Found \n");
+			printf("Pattern not found in %s\n", argv[3]);
 		}
-		while(fgets(result, sizeof(result), opFile)!=NULL) {
-			char delim[] = " ";
-			char *ptr = strtok(result, delim);
-			printf("%s: ", argv[3]);
-			while(ptr != NULL){
-				if (*ptr == *pat) {
-					printf(RED " %s" RESET, ptr);
+		else{
+			while(fgets(result, sizeof(result), opFile)!=NULL) {
+				char delim[] = " ";
+				char *ptr = strtok(result, delim);
+				printf("%s: ", argv[3]);
+				while(ptr != NULL){
+					if (*ptr == *pat) {
+						printf(RED " %s" RESET, ptr);
+					}
+					else
+						printf(" %s", ptr);
+					ptr = strtok(NULL, delim);
 				}
-				else
-					printf(" %s", ptr);
-				ptr = strtok(NULL, delim);
 			}
 		}
+		
 		fclose(opFile);
 
 	

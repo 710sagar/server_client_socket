@@ -109,7 +109,7 @@ int main(int argc , char *argv[]){
 			printf("Error: Command not executed");
 			return;
 		}
-		if(fgets(result, sizeof(result), opFile)==NULL){
+		if(fgets(result, sizeof(result), cmd)==NULL){
 			printf("Pattern not found in %s\n",argv[2]);
 		}
 		else{

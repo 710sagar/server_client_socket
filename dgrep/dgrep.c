@@ -132,12 +132,6 @@ int main(int argc , char *argv[]){
 		opFile=fopen("serverOutput.txt", "r");
 
 		char *pat=argv[1];
-		fseek (opFile, 0, SEEK_END);
-    	int size = ftell(fp);
-
-		if (0 == size) {
-			printf("file is empty\n");
-		}
 			
 		if(fgets(result, sizeof(result), opFile)==NULL){
 			printf("Pattern not found in %s\n", argv[3]);

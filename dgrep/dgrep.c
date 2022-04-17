@@ -10,15 +10,15 @@
 #define RED   "\x1B[31m"
 #define RESET "\x1B[0m"
 
-void sendfile(FILE *fp, int sockfd);
+void sendFile(FILE *fp, int sockFd);
 ssize_t total=0;
 
-void writefile(int sockfd){
-	remove("op_server.txt");
-	FILE *fp=fopen("op_server.txt", "a");
+void writeFile(int sockFd){
+	remove("serverOutput.txt");
+	FILE *fp=fopen("serverOutput.txt", "a");
     ssize_t n;
     char buff[MAX_LINE] = {0};
-    while ((n = recv(sockfd, buff, MAX_LINE, 0)) > 0){
+    while ((n = recv(sockFd, buff, MAX_LINE, 0)) > 0){
 	    total+=n;
         if (n == -1){
             perror("Receive File Error");
@@ -93,20 +93,20 @@ int main(int argc , char *argv[]){
 			perror("Can't open file");
 			exit(1);
 	}
-	sendfile(fp, sock);
+	sendFile(fp, sock);
 
 	// Receive data from server
-	writefile(sock);
+	writeFile(sock);
 
 	// run grep on client
 	char buf[32];
 		sprintf(buf,"grep -w %s %s",argv[1], argv[2]);
 		FILE *cmd=popen(buf, "r");
 		char result[BUFFSIZE]={0x0};
-		remove("op_client.txt");
-		FILE *opFile=fopen("op_client.txt", "a");
+		remove("clientOutput.txt");
+		FILE *opFile=fopen("clientOutput.txt", "a");
 		if (opFile == NULL) {
-			printf("Error running grep on server");
+			printf("Error: Command not executed");
 			return;
 		}
 		//fwrite(buffer, sizeof(buffer[0]), MAX_SIZE, fp);
@@ -125,7 +125,7 @@ int main(int argc , char *argv[]){
 			fwrite(result, sizeof(char), strlen(result), opFile);
 		}
 		fclose(opFile);
-		opFile=fopen("op_server.txt", "r");
+		opFile=fopen("serverOutput.txt", "r");
 
 		char *pat=argv[1];
 		while(fgets(result, sizeof(result), opFile)!=NULL) {
@@ -150,7 +150,7 @@ int main(int argc , char *argv[]){
 }
 
      
-void sendfile(FILE *fp, int sockfd) {
+void sendFile(FILE *fp, int sockFd) {
     int n; 
     char sendline[MAX_LINE] = {0}; 
     while ((n = fread(sendline, sizeof(char), MAX_LINE, fp)) > 0) {
@@ -160,7 +160,7 @@ void sendfile(FILE *fp, int sockfd) {
             exit(1);
         }
         
-        if (send(sockfd, sendline, n, 0) == -1){
+        if (send(sockFd, sendline, n, 0) == -1){
             perror("Can't send file");
             exit(1);
         }

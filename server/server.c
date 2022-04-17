@@ -8,20 +8,18 @@
 #define BUFFSIZE 4096
 
 ssize_t total=0;
-void child(int);
-void writefile(int sockfd, FILE *fp){
+void handle_child(int);
+void writeFile(int sockFd, FILE *file){
     ssize_t n;
     char buff[MAX_LINE] = {0};
-    while ((n = recv(sockfd, buff, MAX_LINE, 0)) > 0) {
-	    printf("n=%d \n", n);
+    while ((n = recv(sockFd, buff, MAX_LINE, 0)) > 0) {
 	    total+=n;
         if (n == -1){
-            perror("Receive File Error");
+            perror("Error: File not received");
             exit(1);
         }
-       //printf("%s\n", buff); 
-        if (fwrite(buff, sizeof(char), n, fp) != n){
-            perror("Write File Error");
+        if (fwrite(buff, sizeof(char), n, file) != n){
+            perror("Error: Write File error");
             exit(1);
         }
         memset(buff, 0, MAX_LINE);
@@ -30,15 +28,15 @@ void writefile(int sockfd, FILE *fp){
 }
 
 int main(int argc , char *argv[]){
-	int socket_desc , client_sock , c , read_size;
+	int socketDesc , clientSock , c , readSize;
 	struct sockaddr_in server , client;
-	char client_message[2000];
+	char clientMessage[2000];
 	char *message;
 	
 	//Create socket
-	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
-	if (socket_desc == -1){
-		printf("Could not create socket");
+	socketDesc = socket(AF_INET , SOCK_STREAM , 0);
+	if (socketDesc == -1){
+		printf("Socket not created");
 	}
 	puts("Socket created");
 	
@@ -48,46 +46,46 @@ int main(int argc , char *argv[]){
 	server.sin_port = htons( 6060 );
 	
 	//Bind
-	if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0){
+	if( bind(socketDesc,(struct sockaddr *)&server , sizeof(server)) < 0){
 		//print the error message
-		perror("bind failed. Error");
+		perror("Error: Bind Failed");
 		return 1;
 	}
-	puts("bind done");
+	puts("Bind Successful");
 	
 	//Listen
-	listen(socket_desc , 3);
+	listen(socketDesc , 10);
 	
 	//Accept and incoming connection
 	puts("Waiting for incoming connections...");
 	c = sizeof(struct sockaddr_in);
 	while (1){	
 		//accept connection from an incoming client
-		client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-		if (client_sock < 0){
+		clientSock = accept(socketDesc, (struct sockaddr *)&client, (socklen_t*)&c);
+		if (clientSock < 0){
 			perror("accept failed");
 			return 1;
 		}
 		puts("Connection accepted");
 		if(!fork())
-			child(client_sock);
+			handle_child(clientSock);
 		
-		close(client_sock);
+		close(clientSock);
 	}	
 	return 0;
 }
 
-void sendfile(FILE *fp, int sockfd){
+void sendfile(FILE *file, int sockFd){
     int n;
     char sendline[MAX_LINE] = {0};
-    while ((n = fread(sendline, sizeof(char), MAX_LINE, fp)) > 0){
+    while ((n = fread(sendline, sizeof(char), MAX_LINE, file)) > 0){
 	    total+=n;
-        if (n != MAX_LINE && ferror(fp)){
+        if (n != MAX_LINE && ferror(file)){
             perror("Read File Error");
             exit(1);
         }
 
-        if (write(sockfd, sendline, n) == -1){
+        if (write(sockFd, sendline, n) == -1){
             perror("Can't send file");
             exit(1);
         }
@@ -95,44 +93,43 @@ void sendfile(FILE *fp, int sockfd){
     }
 }
 
-void child(int client_sock) {
+void handle_child(int clientSock) {
 	char filename[BUFFSIZE] = {0};
        char pattern[BUFFSIZE] = {0};
-		if (recv(client_sock, pattern, BUFFSIZE, 0) == -1) {
+		if (recv(clientSock, pattern, BUFFSIZE, 0) == -1) {
 			perror("Can't receive pattern");
 			exit(1);
 		}
 
-		if (recv(client_sock, filename, BUFFSIZE, 0) == -1) {
+		if (recv(clientSock, filename, BUFFSIZE, 0) == -1) {
 			perror("Can't receive filename");
 			exit(1);
 		}
 
 		
-		FILE *fp = fopen(filename, "wb");
-		if (fp == NULL) {
+		FILE *file = fopen(filename, "wb");
+		if (file == NULL) {
 			perror("Can't open file");
 			exit(1);
 		}
-		writefile(client_sock, fp);
-		fclose(fp);
+		writeFile(clientSock, file);
+		fclose(file);
 		char buf[32];
 		sprintf(buf,"grep -w %s %s",pattern, filename);
 		FILE *cmd=popen(buf, "r");
-		char result[24]={0x0};
+		char result[BUFFSIZE]={0x0};
 		remove("output.txt");
 		FILE *opFile=fopen("output.txt", "a");
 		if (opFile == NULL) {
 			printf("Error running grep on server");
 			return;
 		}
-		//fwrite(buffer, sizeof(buffer[0]), MAX_SIZE, fp);
 		while (fgets(result, sizeof(result), cmd) !=NULL){
 			fwrite(result, sizeof(char), strlen(result), opFile);
 		}
 		fclose(opFile);
 		opFile=fopen("output.txt", "r");
-		sendfile(opFile, client_sock);
+		sendfile(opFile, clientSock);
 		fclose(opFile);
 		pclose(cmd);
 }

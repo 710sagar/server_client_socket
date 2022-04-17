@@ -9,7 +9,7 @@
 
 ssize_t total=0;
 void handle_child(int);
-void writeFile(int sockFd, FILE *file){
+void writefile(int sockFd, FILE *file){
     ssize_t n;
     char buff[MAX_LINE] = {0};
     while ((n = recv(sockFd, buff, MAX_LINE, 0)) > 0) {
@@ -112,7 +112,7 @@ void handle_child(int clientSock) {
 			perror("Can't open file");
 			exit(1);
 		}
-		writeFile(clientSock, file);
+		writefile(clientSock, file);
 		fclose(file);
 		char buf[32];
 		sprintf(buf,"grep -w %s %s",pattern, filename);

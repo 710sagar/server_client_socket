@@ -10,10 +10,10 @@
 #define RED   "\x1B[31m"
 #define RESET "\x1B[0m"
 
-void sendFile(FILE *fp, int sockFd);
+void sendfile(FILE *fp, int sockFd);
 ssize_t total=0;
 
-void writeFile(int sockFd){
+void writefile(int sockFd){
 	remove("serverOutput.txt");
 	FILE *fp=fopen("serverOutput.txt", "a");
     ssize_t n;
@@ -93,10 +93,10 @@ int main(int argc , char *argv[]){
 			perror("Can't open file");
 			exit(1);
 	}
-	sendFile(fp, sock);
+	sendfile(fp, sock);
 
 	// Receive data from server
-	writeFile(sock);
+	writefile(sock);
 
 	// run grep on client
 	char buf[32];
@@ -150,7 +150,7 @@ int main(int argc , char *argv[]){
 }
 
      
-void sendFile(FILE *fp, int sockFd) {
+void sendfile(FILE *fp, int sockFd) {
     int n; 
     char sendline[MAX_LINE] = {0}; 
     while ((n = fread(sendline, sizeof(char), MAX_LINE, fp)) > 0) {

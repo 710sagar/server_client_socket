@@ -102,6 +102,7 @@ int main(int argc , char *argv[]){
 	char buf[32];
 		sprintf(buf,"grep -w %s %s",argv[1], argv[2]);
 		FILE *cmd=popen(buf, "r");
+		FILE *checkCmd = popen(buf, "r");
 		char result[BUFFSIZE]={0x0};
 		remove("clientOutput.txt");
 		FILE *opFile=fopen("clientOutput.txt", "a");
@@ -109,7 +110,7 @@ int main(int argc , char *argv[]){
 			printf("Error: Command not executed");
 			return;
 		}
-		if(fgets(result, sizeof(result), cmd)==NULL){
+		if(fgets(result, sizeof(result), checkCmd)==NULL){
 			printf("Pattern not found in %s\n",argv[2]);
 		}
 		else{
@@ -130,10 +131,10 @@ int main(int argc , char *argv[]){
 		}
 		fclose(opFile);
 		opFile=fopen("serverOutput.txt", "r");
-
+		FILE *checkFile=fopen("serverOutput.txt", "r");
 		char *pat=argv[1];
 			
-		if(fgets(result, sizeof(result), opFile)==NULL){
+		if(fgets(result, sizeof(result), checkFile)==NULL){
 			printf("Pattern not found in %s\n", argv[3]);
 		}
 		else{

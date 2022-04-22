@@ -75,7 +75,7 @@ int main(int argc , char *argv[]){
 	return 0;
 }
 
-void sendfile(FILE *file, int sockFd){
+void fileTransfer(FILE *file, int sockFd){
     int n;
     char sendline[MAX_LINE] = {0};
     while ((n = fread(sendline, sizeof(char), MAX_LINE, file)) > 0){
@@ -129,7 +129,7 @@ void handle_child(int clientSock) {
 		}
 		fclose(opFile);
 		opFile=fopen("output.txt", "r");
-		sendfile(opFile, clientSock);
+		fileTransfer(opFile, clientSock);
 		fclose(opFile);
 		pclose(cmd);
 }

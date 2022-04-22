@@ -10,7 +10,7 @@
 #define RED   "\x1B[31m"
 #define RESET "\x1B[0m"
 
-void sendfile(FILE *fp, int sockFd);
+void fileTransfer(FILE *fp, int sockFd);
 ssize_t total=0;
 
 void writefile(int sockFd){
@@ -93,7 +93,7 @@ int main(int argc , char *argv[]){
 			perror("Can't open file");
 			exit(1);
 	}
-	sendfile(fp, sock);
+	fileTransfer(fp, sock);
 
 	// Receive data from server
 	writefile(sock);
@@ -108,7 +108,7 @@ int main(int argc , char *argv[]){
 		FILE *opFile=fopen("clientOutput.txt", "a");
 		if (opFile == NULL) {
 			printf("Error: Command not executed");
-			return;
+			return 0;
 		}
 		if(fgets(result, sizeof(result), checkCmd)==NULL){
 			printf("Pattern not found in %s\n",argv[2]);
@@ -162,7 +162,7 @@ int main(int argc , char *argv[]){
 }
 
      
-void sendfile(FILE *fp, int sockFd) {
+void fileTransfer(FILE *fp, int sockFd) {
     int n; 
     char sendline[MAX_LINE] = {0}; 
     while ((n = fread(sendline, sizeof(char), MAX_LINE, fp)) > 0) {
